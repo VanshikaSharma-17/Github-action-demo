@@ -1,24 +1,15 @@
-name: Terraform demo Actions
+name: Terraform Parallel Plan Demo
+
 on:
   workflow_dispatch:
-    inputs:
-      terraform_action:
-        description: "Select Terraform Action"
-        required: true
-        type: choice
-        options:
-          - plan
-          - apply
-          - destroy
 
 jobs:
-  terraform:
+  test-plan:
     runs-on: ubuntu-latest
 
     env:
       TF_VAR_api_key: ${{ secrets.DD_API_KEY }}
       TF_VAR_app_key: ${{ secrets.DD_APP_KEY }}
-
 
     steps:
       - name: Checkout Code
@@ -30,48 +21,119 @@ jobs:
       - name: Terraform Init
         run: terraform init
 
-      - name: Terraform Validate
-        run: terraform validate
+      - name: Terraform Plan - Test
+        run: terraform plan
 
-      - name: Terraform Plan
-        if: ${{ github.event.inputs.terraform_action == 'plan' }}
-        run: terraform plan -out=tfplan
+  prod-plan:
+    runs-on: ubuntu-latest
+
+    env:
+      TF_VAR_api_key: ${{ secrets.DD_API_KEY }}
+      TF_VAR_app_key: ${{ secrets.DD_APP_KEY }}
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+
+      - name: Terraform Init
+        run: terraform init
+
+      - name: Terraform Plan - Prod
+        run: terraform plan
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# name: Terraform demo Actions
+# on:
+#   workflow_dispatch:
+#     inputs:
+#       terraform_action:
+#         description: "Select Terraform Action"
+#         required: true
+#         type: choice
+#         options:
+#           - plan
+#           - apply
+#           - destroy
+
+# jobs:
+#   terraform:
+#     runs-on: ubuntu-latest
+
+#     env:
+#       TF_VAR_api_key: ${{ secrets.DD_API_KEY }
+#       TF_VAR_app_key: ${{ secrets.DD_APP_KEY }
+
+
+#     steps:
+#       - name: Checkout Code
+#         uses: actions/checkout@v4
+
+#       - name: Setup Terraform
+#         uses: hashicorp/setup-terraform@v3
+
+#       - name: Terraform Init
+#         run: terraform init
+
+#       - name: Terraform Validate
+#         run: terraform validate
+
+#       - name: Terraform Plan
+#         f: ${{ github.event.inputs.terraform_action == 'plan' }
+#         run: terraform plan -out=tfplan
             
 
-      - name: Terraform Apply
-        if: ${{ github.event.inputs.terraform_action == 'apply' }}
-        run: |
-         terraform plan -out=tfplan
-         terraform apply -auto-approve tfplan
+#       - name: Terraform Apply
+#         f: ${{ github.event.inputs.terraform_action == 'apply' }
+#         run: |
+#          terraform plan -out=tfplan
+#          terraform apply -auto-approve tfplan
 
-      - name: Show State
-        if: ${{ github.event.inputs.terraform_action == 'apply' }}
-        run: terraform state list
+#       - name: Show State
+#         f: ${{ github.event.inputs.terraform_action == 'apply' }
+#         run: terraform state list
         
 
-      - name: Upload Terraform State
-        if: ${{ github.event.inputs.terraform_action == 'apply' }}
-        uses: actions/upload-artifact@v4
-        with:
-            name: terraform-state
-            path: |
-                terraform.tfstate
-                terraform.tfstate.backup
+#       - name: Upload Terraform State
+#         f: ${{ github.event.inputs.terraform_action == 'apply' }
+#         uses: actions/upload-artifact@v4
+#         with:
+#             name: terraform-state
+#             path: |
+#                 terraform.tfstate
+#                 terraform.tfstate.backup
 
-    #   - name: Download Terraform State
-    #     f: ${{ github.event.inputs.terraform_action == 'apply' }
-    #     uses: actions/download-artifact@v4
-    #     with:
-    #         name: terraform-state
-      - name: Check Files
-        if: ${{ github.event.inputs.terraform_action == 'destroy' }}
-        run: |
-            ls -la
+#     #   - name: Download Terraform State
+#     #     f: ${{ github.event.inputs.terraform_action == 'apply' }
+#     #     uses: actions/download-artifact@v4
+#     #     with:
+#     #         name: terraform-state
+#       - name: Check Files
+#         f: ${{ github.event.inputs.terraform_action == 'destroy' }
+#         run: |
+#             ls -la
 
-      - name: Check State
-        if: ${{ github.event.inputs.terraform_action == 'destroy' }}
-        run: terraform state list
+#       - name: Check State
+#         f: ${{ github.event.inputs.terraform_action == 'destroy' }
+#         run: terraform state list
 
-      - name: Terraform Destroy
-        if: ${{ github.event.inputs.terraform_action == 'destroy' }}
-        run: terraform destroy -auto-approve 
+#       - name: Terraform Destroy
+#         f: ${{ github.event.inputs.terraform_action == 'destroy' }
+#         run: terraform destroy -auto-approve 
