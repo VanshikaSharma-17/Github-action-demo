@@ -40,7 +40,9 @@ jobs:
 
       - name: Terraform Apply
         if: ${{ github.event.inputs.terraform_action == 'apply' }}
-        run: terraform apply -auto-approve tfplan
+        run: |
+         terraform plan -out=tfplan
+         terraform apply -auto-approve tfplan
         
 
       - name: Upload Terraform State
