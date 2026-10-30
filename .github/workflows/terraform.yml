@@ -1,4 +1,4 @@
-name: Terraform Actions
+name: Terraform demo Actions
 on:
   workflow_dispatch:
     inputs:
