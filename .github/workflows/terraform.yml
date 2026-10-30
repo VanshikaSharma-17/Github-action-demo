@@ -1,0 +1,62 @@
+name: Terraform Actions
+on:
+  workflow_dispatch:
+    inputs:
+      terraform_action:
+        description: "Select Terraform Action"
+        required: true
+        type: choice
+        options:
+          - plan
+          - apply
+          - destroy
+
+jobs:
+  terraform:
+    runs-on: ubuntu-latest
+
+    env:
+      TF_VAR_api_key: ${{ secrets.DD_API_KEY }}
+      TF_VAR_app_key: ${{ secrets.DD_APP_KEY }}
+
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AWS_REGION: ${{ secrets.AWS_REGION }}
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+
+      - name: Terraform Init
+        run: terraform init
+
+      - name: Terraform Validate
+        run: terraform validate
+
+      - name: Terraform Plan
+        if: ${{ github.event.inputs.terraform_action == 'plan' }}
+        run: |
+          terraform plan \
+            -var-file=tfvars/dashboard.tfvars \
+            -var-file=tfvars/monitors.tfvars \
+            -out=tfplan
+
+      - name: Terraform Apply
+        if: ${{ github.event.inputs.terraform_action == 'apply' }}
+        run: |
+          terraform plan \
+            -var-file=tfvars/dashboard.tfvars \
+            -var-file=tfvars/monitors.tfvars \
+            -out=tfplan
+
+          terraform apply -auto-approve tfplan
+
+      - name: Terraform Destroy
+        if: ${{ github.event.inputs.terraform_action == 'destroy' }}
+        run: |
+          terraform destroy -auto-approve \
+            -var-file=tfvars/dashboard.tfvars \
+            -var-file=tfvars/monitors.tfvars
