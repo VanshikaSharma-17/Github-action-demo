@@ -44,25 +44,25 @@ jobs:
          terraform plan -out=tfplan
          terraform apply -auto-approve tfplan
 
-      - name: Show State
-        if: ${{ github.event.inputs.terraform_action == 'apply' }}
-        run: terraform state list
+    #   - name: Show State
+    #     f: ${{ github.event.inputs.terraform_action == 'apply' }
+    #     run: terraform state list
         
 
-      - name: Upload Terraform State
-        if: ${{ github.event.inputs.terraform_action == 'apply' }}
-        uses: actions/upload-artifact@v4
-        with:
-            name: terraform-state
-            path: |
-                terraform.tfstate
-                terraform.tfstate.backup
+    #   - name: Upload Terraform State
+    #     f: ${{ github.event.inputs.terraform_action == 'apply' }
+    #     uses: actions/upload-artifact@v4
+    #     with:
+    #         name: terraform-state
+    #         path: |
+    #             terraform.tfstate
+    #             terraform.tfstate.backup
 
-      - name: Download Terraform State
-        if: ${{ github.event.inputs.terraform_action == 'apply' }}
-        uses: actions/download-artifact@v4
-        with:
-            name: terraform-state
+    #   - name: Download Terraform State
+    #     f: ${{ github.event.inputs.terraform_action == 'apply' }
+    #     uses: actions/download-artifact@v4
+    #     with:
+    #         name: terraform-state
 
       - name: Terraform Destroy
         if: ${{ github.event.inputs.terraform_action == 'destroy' }}
