@@ -55,12 +55,12 @@ jobs:
                 terraform.tfstate.backup
 
       - name: Download Terraform State
-        if: ${{ github.event.inputs.terraform_action == 'destroy' }}
+        if: ${{ github.event.inputs.terraform_action == 'apply' }}
         uses: actions/download-artifact@v4
         with:
             name: terraform-state
 
       - name: Terraform Destroy
-        if: ${{ github.event.inputs.terraform_action == 'destroy' }}
+        if: ${{ github.event.inputs.terraform_action == 'apply' }}
         run: terraform destroy -auto-approve 
            
